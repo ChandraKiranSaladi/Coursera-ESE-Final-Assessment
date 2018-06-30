@@ -25,49 +25,9 @@
 
 
 // Header Files. 
-#include <stdio.h>
+#include<stddef.h>
 #include "stats.h"
-
-/* Size of the Data Set */
-#define SIZE (40)
-
-void main() {
-
-/* Set of 40 numbers */
-  unsigned char test[SIZE] = { 34, 201, 190, 154,   8, 194,   2,   6,
-                              114, 88,   45,  76, 123,  87,  25,  23,
-                              200, 122, 150, 90,   92,  87, 177, 244,
-                              201,   6,  12,  60,   8,   2,   5,  67,
-                                7,  87, 250, 230,  99,   3, 100,  90};
-
-/* Statistics Variables */
-  unsigned char maximum;
-  unsigned char minimum;
-  unsigned char mean;
-  unsigned char median;
- 
-  printf("The Given Array is \n");
-
-  /* Priting the given Array  */
-  print_array(test, SIZE);    
-
-  /* Calculating the statistics using the functions defined. */
-  maximum = find_maximum(test, SIZE);
-  minimum = find_minimum(test, SIZE);
-  mean = find_mean(test, SIZE);
-  median =  find_median(test, SIZE);
-
-  /* Printing the statistics using the function print_statistics */
-  print_statistics(test, SIZE, maximum, minimum, mean, median);
-
-  /* The array is sorted upon calling this function */
-  sort_array(test, SIZE);
-
-  printf("The Array after sorting: \n");
-  print_array(test, SIZE);
-
-}
-
+#include "platform.h"
 unsigned char find_mean(unsigned char * temp, int size)
 {
 	int i;
@@ -136,15 +96,22 @@ void print_array(unsigned char * temp, int size){
 
 	if(temp == NULL)
 		return;
-	printf("\n");
+	#if !defined (VERBOSE) && defined (HOST)
+	#undef PRINTF
+	#define PRINTF(...)  
+	#endif
+	PRINTF("Printing Array\n");
 	for( i = 0; i < size; i++)
-		printf("%u\t",(unsigned char)temp[i]);
-	printf("\n");
+		PRINTF("%u\t",(unsigned char)temp[i]);
+	PRINTF("\n");
+	#if defined (VERBOSE) && defined (HOST)
+	#undef PRINTF 
+	#define PRINTF(...) printf(__VA_ARGS__)
+	#endif
 }
 
 unsigned char find_median(unsigned char * temp, int size){
 
-	int i;
 	unsigned char median;
 
 	sort_array(temp, size);
@@ -183,11 +150,11 @@ void sort_array(unsigned char * temp, int size){
 void print_statistics(unsigned char * temp, int size, unsigned char maximum,
 							 unsigned char minimum, unsigned char mean, unsigned char median){
 
-  printf("\nThe statistics of the array:\n");
-  printf(" 		Maximum = %u \n",maximum);
-  printf(" 		Minimum = %u \n",minimum);
-  printf(" 		mean = %u \n",mean);
-  printf(" 		Median = %u \n",median);
+  PRINTF("\nThe statistics of the array:\n");
+  PRINTF(" 		Maximum = %u \n",maximum);
+  PRINTF(" 		Minimum = %u \n",minimum);
+  PRINTF(" 		mean = %u \n",mean);
+  PRINTF(" 		Median = %u \n",median);
 
 }
 

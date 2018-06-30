@@ -33,8 +33,9 @@ include sources.mk
 ifeq ($(PLATFORM),MSP432)
 		CC = arm-none-eabi-gcc
 		LD = arm-none-eabi-ld
-		LINKER_FILE = ../msp432p401r.lds
+		LINKER_FILE = msp432p401r.lds
 		LDFLAGS = -Wl,-Map=$(TARGET).map -T $(LINKER_FILE)
+
 		# Architectures Specific Flags ARM
 		CPU = cortex-m4
 		ARCH = thumb
@@ -54,14 +55,23 @@ else
 		OBJDUMP = objdump
 endif
 
+#Verbose Flag enabled in Cmd, prints debug information
+
+VPATH = ./src
+ 
+ifeq ($(VERBOSE),VERBOSE)
+		VER = -g
+endif
+
 
 
 # Compiler Flags and Defines
 	#-D$(PLATFORM) is put inside the CFLAGS. 
 
-TARGET = c1m2
+TARGET = final
 
-CFLAGS = -Wall -Werror -g -O0 -std=c99 -D$(PLATFORM) $(ARMFLAGS)
+CFLAGS = -Wall -Werror $(VER) -O0 -std=c99 $(INCLUDEHEADER) -D$(PLATFORM) $(ARMFLAGS) -D$(VERBOSE) -D$(COURSE1)
+
 CPPFLAGS = -E
 MAIN = main
 
@@ -73,45 +83,40 @@ ASMS = $(SOURCES:.c=.asm)
 
 DEPS = $(SOURCES:.c=.d)
 
-#Had to use this because other than memory.* and main.* other files are not getting deleted.  
 FILES = *.asm *.i *.o *.d
 
-#Unable to create all the .d .asm .i files using just $(TARGET).d $(TARGET).i $(TARGET).asm  after make 
-#$(MAIN).d : $(DEPS)
-	
-#$(MAIN).asm : $(ASMS)
-	
-#$(MAIN).i : $(PREPRO)
-	
 %.o : %.c
-	$(CC) $(INCLUDES) -c $< $(CFLAGS) -o $@
+	$(CC) -c $< $(CFLAGS) -o $@
 
-%.i : %.c
-	$(CC) $(INCLUDES) $(CPPFLAGS) $< $(CFLAGS) -o $@
+#%.i : %.c
+#	$(CC) $(INCLUDES) $(CPPFLAGS) $< $(CFLAGS) -o $@
 
-%.asm : %.c
-	$(CC) $(INCLUDES) -S $< $(CFLAGS) -o $@
+#%.asm : %.c
+#	$(CC) $(INCLUDES) -S $< $(CFLAGS) -o $@
 
-$(TARGET).asm : $(TARGET).out
-	$(OBJDUMP) -d $(TARGET).out >> $@
+#$(TARGET).asm : $(TARGET).out
+#	$(OBJDUMP) -d $(TARGET).out >> $@
 
-%.d : %.c
-	$(CC) $(INCLUDES) -M $< $(CFLAGS) -o $@
+#%.d : %.c
+#	$(CC) $(INCLUDES) -M $< $(CFLAGS) -o $@
 
 .PHONY: compile-all
 compile-all: $(OBJS)
 	$(CC) $(INCLUDES) $(OBJS) -c $(CFLAGS) -o $(TARGET).o
 
+
+# $ make build PLATFORM=HOST, $ make build PLATFORM=MSP432, builds and generates all the files necessary.
 .PHONY: build
-build: $(TARGET).out  $(TARGET).asm
+build: $(TARGET).out  #$(TARGET).asm
 
 
-$(TARGET).out: $(OBJS) $(DEPS) 
+$(TARGET).out: $(OBJS) #$(DEPS) 
 	$(CC) $(CFLAGS) $(INCLUDES) $(LDFLAGS) -o $@ $(OBJS)
-	$(SIZE) -Atd $(TARGET).out
-	$(SIZE) $(TARGET).out
+#	$(SIZE) -Atd $(TARGET).out
+#	$(SIZE) $(TARGET).out
+
+#$ make clean,  cleans all the generated files.
 .PHONY: clean
 clean:
 	rm -f $(TARGET).asm $(FILES) $(TARGET).out $(TARGET).map $(PREPRO) $(ASMS) $(DEPS) $(OBJS)
-
 

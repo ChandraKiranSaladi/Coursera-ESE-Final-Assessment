@@ -12,25 +12,33 @@
 # Add your Source files to this variable
 
 ifeq ($(PLATFORM),MSP432)
-	SOURCES =          main.c \
-			   memory.c \
-			   interrupts_msp432p401r_gcc.c \
-			   startup_msp432p401r_gcc.c \
-			   system_msp432p401r.c
+	SOURCES =       main.c \
+			memory.c \
+			data.c \
+			stats.c \
+			course1.c \
+			interrupts_msp432p401r_gcc.c \
+			startup_msp432p401r_gcc.c \
+			system_msp432p401r.c
 else
-	SOURCES = main.c \
-		  memory.c 
+	SOURCES = 	main.c \
+		  	memory.c \
+		  	data.c \
+		  	stats.c \
+		  	course1.c 
 
 	endif
 
 # Add your include paths to this variable
-# Add your include paths to this variable
+
 ifeq ($(PLATFORM),MSP432)
-	INCLUDES = 	   -I../include/CMSIS \
-			   -I../include/common \
-			   -I../include/msp432 \
-			   -I../ 
+	INCLUDEHEADER = -I./include/CMSIS \
+			-I./include/common \
+			-I./include/msp432  
 else
-	INCLUDES =         -I../include/common	
+	INCLUDESRC =    -I./src 
+ 
+	INCLUDEHEADER=	-I./include/common \
+			-I./   
 
 endif
